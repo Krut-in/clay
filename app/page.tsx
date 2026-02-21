@@ -1,31 +1,39 @@
 'use client';
 
-import { useCallback, useState, useRef, Suspense } from 'react';
+import { useCallback, useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useClayStore } from '@/hooks/useClayStore';
 import { useCopilotActions } from '@/hooks/useCopilotActions';
+import { useEvaluator } from '@/hooks/useEvaluator';
 import { fetchBlueprint } from '@/lib/claude';
 import { parseIntoCards } from '@/lib/parser';
+import { DEMO_CARDS, DEMO_EVALUATOR, DEMO_QUERY } from '@/lib/demo';
 import { QueryInput } from '@/components/QueryInput';
 import { Blueprint } from '@/components/Blueprint';
 import { Canvas } from '@/components/Canvas';
 import { StreamingPreview } from '@/components/StreamingPreview';
 import { EmptyState } from '@/components/EmptyState';
 import { GestureLegend } from '@/components/GestureLegend';
+import { EvaluatorBar } from '@/components/EvaluatorBar';
+import { ExportButton } from '@/components/ExportButton';
 import type { BlueprintTopic } from '@/types';
 
 function HomeContent() {
   const searchParams = useSearchParams();
-  const isDemo = searchParams.get('demo') === '1';
+  const isDemoParam = searchParams.get('demo') === '1';
 
   const {
-    cards, status,
+    cards, status, query, evaluatorResults,
     addCard, clearCards, setQuery, setStatus,
     setBlueprintData, updateCard, removeCard,
+    setEvaluatorResults, setIsDemo, isDemo,
   } = useClayStore();
 
   // Register CopilotKit actions and readable state
   useCopilotActions();
+
+  // Auto-fire evaluator when cards change
+  useEvaluator();
 
   const [streamingText, setStreamingText] = useState('');
   const [showBlueprint, setShowBlueprint] = useState(false);
@@ -33,6 +41,23 @@ function HomeContent() {
   const [localTopics, setLocalTopics] = useState<BlueprintTopic[]>([]);
   const [localInterpretation, setLocalInterpretation] = useState('');
   const queryInputRef = useRef<string>('');
+
+  // Demo mode: load pre-built cards + evaluator data instantly
+  useEffect(() => {
+    if (!isDemoParam) return;
+    setIsDemo(true);
+    setQuery(DEMO_QUERY);
+    clearCards();
+    for (const card of DEMO_CARDS) {
+      addCard(card);
+    }
+    setEvaluatorResults(DEMO_EVALUATOR);
+    setStatus({
+      type: 'ready',
+      message: `${DEMO_CARDS.length} cards ready — hover to sculpt · double-click to rephrase`,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemoParam]);
 
   const generateCards = async (q: string, selectedTopics?: string[]) => {
     setStatus({ type: 'streaming', message: 'Sculpting response…' });
@@ -259,15 +284,30 @@ function HomeContent() {
             response sculpting
           </span>
         </div>
-        {cards.length > 0 && (
-          <span style={{
-            fontFamily: 'var(--font-mono)',
-            fontSize: 12,
-            color: 'var(--text-muted)',
-          }}>
-            {cards.length} card{cards.length !== 1 ? 's' : ''}
-          </span>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {isDemo && (
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 10,
+              color: 'var(--action-inspect)',
+              border: '1px solid var(--action-inspect)',
+              borderRadius: 10,
+              padding: '2px 8px',
+            }}>
+              demo mode
+            </span>
+          )}
+          {cards.length > 0 && (
+            <span style={{
+              fontFamily: 'var(--font-mono)',
+              fontSize: 12,
+              color: 'var(--text-muted)',
+            }}>
+              {cards.length} card{cards.length !== 1 ? 's' : ''}
+            </span>
+          )}
+          <ExportButton cards={cards} query={query} evaluatorResults={evaluatorResults} />
+        </div>
       </header>
 
       {/* Query Input */}
@@ -295,16 +335,20 @@ function HomeContent() {
         onConfirm={handleBlueprintConfirm}
         onUpdateInterpretation={setLocalInterpretation}
         onToggleTopic={handleToggleTopic}
-        isDemo={isDemo}
+        isDemo={isDemoParam}
         visible={showBlueprint}
       />
 
       {/* Streaming Preview */}
       {showStreaming && <StreamingPreview text={streamingText} />}
 
+      {/* Evaluator Bar */}
+      <EvaluatorBar results={evaluatorResults} cardCount={cards.length} />
+
       {/* Card Canvas */}
       <Canvas
         cards={cards}
+        evaluatorResults={evaluatorResults}
         onCompress={handleCompress}
         onExpand={handleExpand}
         onRephrase={handleRephrase}

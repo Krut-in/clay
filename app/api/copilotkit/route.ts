@@ -74,11 +74,49 @@ export const POST = async (req: NextRequest) => {
 
       // Handle evaluator requests
       if (body.action === 'evaluate' && body.query && body.cards) {
-        // Evaluator will be implemented in Prompt 4
-        return new Response(JSON.stringify({ error: 'Evaluator not yet implemented' }), {
-          status: 501,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        const { query: evalQuery, cards: evalCards } = body;
+
+        // Cache check
+        const evalInput = evalCards.map((c: { text: string }) => c.text).join('|||');
+        const evalCacheKey = `clay:eval:${hashKey(evalInput)}`;
+        const evalCached = await getCached(evalCacheKey);
+        if (evalCached) {
+          return new Response(evalCached, {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Cache': 'HIT',
+            },
+          });
+        }
+
+        // Call Claude Haiku for evaluation
+        const { EVALUATOR_PROMPT } = await import('@/lib/prompts');
+        const evalPrompt = EVALUATOR_PROMPT(evalQuery, evalCards);
+        const evalResult = await callClaude('claude-haiku-4-5-20251001', evalPrompt);
+
+        try {
+          // Parse and validate JSON response
+          const parsed = JSON.parse(evalResult);
+          if (!parsed.cards || !Array.isArray(parsed.cards)) {
+            throw new Error('Invalid evaluator response shape');
+          }
+
+          const resultStr = JSON.stringify(parsed);
+          await setCached(evalCacheKey, resultStr);
+
+          return new Response(resultStr, {
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Cache': 'MISS',
+            },
+          });
+        } catch (parseErr) {
+          // JSON parse failed — return null so UI gracefully skips indicators
+          console.warn('Evaluator JSON parse failed:', parseErr);
+          return new Response(JSON.stringify(null), {
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
       }
     } catch {
       // Not a JSON body or not our format — fall through to CopilotKit

@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ActionSidebar } from './ActionSidebar';
-import type { Card as CardType } from '@/types';
+import type { Card as CardType, CardEvaluation } from '@/types';
 
 interface CardProps {
   card: CardType;
   index: number;
+  evaluation?: CardEvaluation | null;
   onCompress: (id: string) => void;
   onExpand: (id: string) => void;
   onRephrase: (id: string) => void;
@@ -27,8 +28,9 @@ const VARIANT_LABELS: Record<string, string> = {
   rephrased: '↺ rephrased',
 };
 
-export function Card({ card, index, onCompress, onExpand, onRephrase, onInspect, onDismiss }: CardProps) {
+export function Card({ card, index, evaluation, onCompress, onExpand, onRephrase, onInspect, onDismiss }: CardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   return (
     <motion.div
@@ -75,6 +77,57 @@ export function Card({ card, index, onCompress, onExpand, onRephrase, onInspect,
         }}>
           {VARIANT_LABELS[card.variant]}
         </span>
+      )}
+
+      {/* Evaluator strength dot */}
+      {evaluation && (
+        <>
+          <div
+            title={evaluation.suggestion}
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            style={{
+              position: 'absolute',
+              top: 8,
+              right: 8,
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background:
+                evaluation.strength === 'strong'
+                  ? 'var(--eval-strong)'
+                  : evaluation.strength === 'moderate'
+                    ? 'var(--eval-moderate)'
+                    : 'var(--eval-weak)',
+              opacity: 1,
+              transition: 'opacity 0.5s ease',
+              cursor: 'help',
+              zIndex: 5,
+            }}
+          />
+          {showTooltip && (
+            <div style={{
+              position: 'absolute',
+              top: -8,
+              right: 20,
+              transform: 'translateY(-100%)',
+              background: 'var(--palette-bg)',
+              color: 'var(--palette-text)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: 11,
+              padding: '6px 10px',
+              borderRadius: 6,
+              maxWidth: 240,
+              lineHeight: 1.4,
+              whiteSpace: 'normal',
+              zIndex: 20,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              pointerEvents: 'none',
+            }}>
+              {evaluation.suggestion}
+            </div>
+          )}
+        </>
       )}
 
       {/* Loading shimmer overlay */}
