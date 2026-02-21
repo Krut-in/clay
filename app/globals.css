@@ -1,82 +1,113 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap");
 
 :root {
   /* Canvas & Cards */
-  --bg-canvas: #F5F0E8;
-  --bg-card: #FFFFFF;
-  --bg-card-hover: #FAFAF8;
-  --border-card: #E8E4DE;
+  --bg-canvas: #f5f0e8;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fafaf8;
+  --border-card: #e8e4de;
 
   /* Blueprint Panel */
-  --bg-blueprint: #FDFCF9;
-  --border-blueprint: #D8D2C8;
+  --bg-blueprint: #fdfcf9;
+  --border-blueprint: #d8d2c8;
 
   /* Typography */
-  --text-body: #2A2520;
-  --text-muted: #A09280;
-  --text-meta: #C0B8AA;
+  --text-body: #2a2520;
+  --text-muted: #a09280;
+  --text-meta: #c0b8aa;
 
   /* Action Colors */
-  --action-compress: #2D2D2D;
-  --action-expand: #1A4A8A;
-  --action-rephrase: #2D6A2D;
-  --action-inspect: #8A6A00;
-  --action-dismiss: #C0392B;
+  --action-compress: #2d2d2d;
+  --action-expand: #1a4a8a;
+  --action-rephrase: #2d6a2d;
+  --action-inspect: #8a6a00;
+  --action-dismiss: #c0392b;
 
   /* Evaluator Colors */
-  --eval-strong: #2D6A2D;
-  --eval-moderate: #8A6A00;
-  --eval-weak: #C0392B;
-  --eval-overlap: #A09280;
+  --eval-strong: #2d6a2d;
+  --eval-moderate: #8a6a00;
+  --eval-weak: #c0392b;
+  --eval-overlap: #a09280;
 
   /* Command Palette */
-  --palette-bg: #2A2520;
-  --palette-text: #F5F0E8;
+  --palette-bg: #2a2520;
+  --palette-text: #f5f0e8;
 
   /* Shadows */
   --shadow-idle: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.1);
 
   /* Font Families */
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Lora', Georgia, serif;
-  --font-mono: 'DM Mono', 'Courier New', monospace;
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Lora", Georgia, serif;
+  --font-mono: "DM Mono", "Courier New", monospace;
 }
 
 /* Keyframes */
 @keyframes shimmer {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes eval-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.85; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.85;
+  }
 }
 
 @keyframes eval-ping {
-  0% { transform: scale(1); opacity: 0.55; }
-  100% { transform: scale(2.8); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
 }
 
 /* Reset & Base */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   font-family: var(--font-body);
   font-size: 15.5px;
