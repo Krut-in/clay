@@ -14,7 +14,7 @@ interface BlueprintProps {
   visible: boolean;
 }
 
-const AUTO_PROCEED_DURATION = 5000; // 5 seconds
+const AUTO_PROCEED_DURATION = 45000; // 45 seconds
 
 export function Blueprint({
   interpretation,
@@ -30,18 +30,21 @@ export function Blueprint({
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef(Date.now());
 
-  const resetCountdown = useCallback(() => {
-    setCountdown(AUTO_PROCEED_DURATION);
-    startTimeRef.current = Date.now();
-  }, []);
-
   const handleConfirm = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     const selected = topics.filter((t) => t.selected).map((t) => t.text);
     onConfirm(selected);
   }, [topics, onConfirm]);
 
-  // Auto-proceed countdown (disabled in demo mode)
+  // Keep a stable ref to handleConfirm so the timer effect never needs to restart
+  // when topics change (which would reset startTimeRef and restart the countdown).
+  const handleConfirmRef = useRef(handleConfirm);
+  useEffect(() => {
+    handleConfirmRef.current = handleConfirm;
+  }, [handleConfirm]);
+
+  // Auto-proceed countdown — fires once when Blueprint becomes visible.
+  // Depends only on isDemo / visible so topic changes never restart the clock.
   useEffect(() => {
     if (isDemo || !visible) return;
 
@@ -50,7 +53,7 @@ export function Blueprint({
       const elapsed = Date.now() - startTimeRef.current;
       const remaining = AUTO_PROCEED_DURATION - elapsed;
       if (remaining <= 0) {
-        handleConfirm();
+        handleConfirmRef.current();
       } else {
         setCountdown(remaining);
       }
@@ -59,11 +62,8 @@ export function Blueprint({
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isDemo, visible, handleConfirm]);
-
-  const handleInteraction = () => {
-    if (!isDemo) resetCountdown();
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDemo, visible]);
 
   const selectedCount = topics.filter((t) => t.selected).length;
 
@@ -76,7 +76,6 @@ export function Blueprint({
           exit={{ height: 0, opacity: 0, marginBottom: 0 }}
           transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           style={{ overflow: 'hidden' }}
-          onMouseEnter={handleInteraction}
         >
           <div
             style={{
@@ -105,13 +104,11 @@ export function Blueprint({
                   suppressContentEditableWarning
                   onFocus={() => {
                     setIsEditing(true);
-                    handleInteraction();
                   }}
                   onBlur={(e) => {
                     setIsEditing(false);
                     onUpdateInterpretation(e.currentTarget.textContent || interpretation);
                   }}
-                  onInput={handleInteraction}
                   style={{
                     fontFamily: 'var(--font-body)',
                     fontSize: 14.5,
@@ -165,14 +162,13 @@ export function Blueprint({
                       cursor: 'pointer',
                       padding: '4px 0',
                     }}
-                    onClick={handleInteraction}
+
                   >
                     <input
                       type="checkbox"
                       checked={topic.selected}
                       onChange={() => {
                         onToggleTopic(i);
-                        handleInteraction();
                       }}
                       style={{
                         width: 16,

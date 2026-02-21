@@ -83,28 +83,57 @@ export function Card({ card, index, evaluation, onCompress, onExpand, onRephrase
       {evaluation && (
         <>
           <div
-            title={evaluation.suggestion}
-            onMouseEnter={() => setShowTooltip(true)}
-            onMouseLeave={() => setShowTooltip(false)}
             style={{
               position: 'absolute',
-              top: 8,
-              right: 8,
-              width: 8,
-              height: 8,
-              borderRadius: '50%',
-              background:
-                evaluation.strength === 'strong'
-                  ? 'var(--eval-strong)'
-                  : evaluation.strength === 'moderate'
-                    ? 'var(--eval-moderate)'
-                    : 'var(--eval-weak)',
-              opacity: 1,
-              transition: 'opacity 0.5s ease',
-              cursor: 'help',
+              top: 7,
+              right: 7,
+              width: 11,
+              height: 11,
               zIndex: 5,
             }}
-          />
+          >
+            {/* Ping ring */}
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background:
+                  evaluation.strength === 'strong'
+                    ? 'var(--eval-strong)'
+                    : evaluation.strength === 'moderate'
+                      ? 'var(--eval-moderate)'
+                      : 'var(--eval-weak)',
+                animation: 'eval-ping 1.8s ease-out infinite',
+                pointerEvents: 'none',
+              }}
+            />
+            {/* Dot */}
+            <div
+              title={evaluation.suggestion}
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background:
+                  evaluation.strength === 'strong'
+                    ? 'var(--eval-strong)'
+                    : evaluation.strength === 'moderate'
+                      ? 'var(--eval-moderate)'
+                      : 'var(--eval-weak)',
+                boxShadow:
+                  evaluation.strength === 'strong'
+                    ? '0 0 7px 2px var(--eval-strong)'
+                    : evaluation.strength === 'moderate'
+                      ? '0 0 7px 2px var(--eval-moderate)'
+                      : '0 0 7px 2px var(--eval-weak)',
+                animation: 'eval-pulse 2s ease-in-out infinite',
+                cursor: 'help',
+              }}
+            />
+          </div>
           {showTooltip && (
             <div style={{
               position: 'absolute',

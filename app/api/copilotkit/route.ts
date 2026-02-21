@@ -16,7 +16,9 @@ async function callClaude(model: string, prompt: string): Promise<string> {
     max_tokens: 1024,
     messages: [{ role: 'user', content: prompt }],
   });
-  return message.content[0].type === 'text' ? message.content[0].text : '';
+  // Find the first text block — thinking-enabled models may prepend a 'thinking' block
+  const textBlock = message.content.find((b) => b.type === 'text');
+  return textBlock && textBlock.type === 'text' ? textBlock.text : '';
 }
 
 async function handleCardAction(
@@ -95,8 +97,16 @@ export const POST = async (req: NextRequest) => {
         const evalResult = await callClaude('claude-haiku-4-5-20251001', evalPrompt);
 
         try {
+          // Strip markdown fences (Haiku often wraps JSON despite being told not to)
+          const stripped = evalResult
+            .replace(/^```[\w]*\n?/m, '')
+            .replace(/\n?```$/m, '')
+            .trim();
+          // Extract the JSON object in case there is preamble/postamble text
+          const jsonMatch = stripped.match(/\{[\s\S]*\}/);
+          const jsonStr = jsonMatch ? jsonMatch[0] : stripped;
           // Parse and validate JSON response
-          const parsed = JSON.parse(evalResult);
+          const parsed = JSON.parse(jsonStr);
           if (!parsed.cards || !Array.isArray(parsed.cards)) {
             throw new Error('Invalid evaluator response shape');
           }

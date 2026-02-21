@@ -59,6 +59,16 @@
   50% { opacity: 0; }
 }
 
+@keyframes eval-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.85; }
+}
+
+@keyframes eval-ping {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(2.8); opacity: 0; }
+}
+
 /* Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;
