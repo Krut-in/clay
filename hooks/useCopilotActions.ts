@@ -4,7 +4,7 @@ import { useCopilotReadable, useCopilotAction } from '@copilotkit/react-core';
 import { useClayStore } from './useClayStore';
 
 export function useCopilotActions() {
-  const { cards, evaluatorResults, query, updateCard, removeCard } = useClayStore();
+  const { cards, evaluatorResults, query, updateCard, removeCard, setOverlapHighlighted } = useClayStore();
 
   // Expose canvas state to CopilotKit agent
   useCopilotReadable({
@@ -162,8 +162,11 @@ export function useCopilotActions() {
     description: 'Visually highlight cards that overlap with each other. Overlap lines pulse for 2 seconds.',
     parameters: [],
     handler: async () => {
-      // This will be enhanced in Prompt 4 when evaluator is implemented
-      return 'Overlap highlighting triggered';
+      const hasOverlaps = evaluatorResults?.cards.some((e) => e.overlaps_with !== null);
+      if (!hasOverlaps) return 'No overlapping cards found';
+      setOverlapHighlighted(true);
+      setTimeout(() => setOverlapHighlighted(false), 2000);
+      return 'Highlighting overlapping cards';
     },
   });
 }

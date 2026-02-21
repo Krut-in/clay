@@ -51,9 +51,9 @@ export function useEvaluator() {
       const data = await res.json();
 
       if (data && data.cards && Array.isArray(data.cards)) {
-        // Map evaluator card IDs back to actual card IDs
-        const mappedCards = data.cards.map((evalCard: { id: string; strength: string; suggestion: string; overlaps_with: number | null }, i: number) => ({
-          id: cards[i]?.id || evalCard.id,
+        // Trust the evaluator to echo back the card IDs we sent it
+        const mappedCards = data.cards.map((evalCard: { id: string; strength: string; suggestion: string; overlaps_with: string | null }) => ({
+          id: evalCard.id,
           strength: evalCard.strength,
           suggestion: evalCard.suggestion,
           overlaps_with: evalCard.overlaps_with,

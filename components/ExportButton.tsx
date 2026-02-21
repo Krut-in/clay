@@ -27,6 +27,15 @@ export function ExportButton({ cards, query, evaluatorResults }: ExportButtonPro
 
   if (cards.length === 0) return null;
 
+  // Escape characters that would break markdown structure
+  function escapeMarkdown(text: string): string {
+    return text
+      .split('\n')
+      .map((line) => line.replace(/^(#{1,6}\s)/, '\\$1'))  // escape heading markers at line start
+      .join('\n')
+      .replace(/([_*`[\]])/g, '\\$1');                      // escape inline markdown specials
+  }
+
   const handleCopy = async () => {
     const text = cards.map((c, i) => `${i + 1}. ${c.text}`).join('\n\n');
     await navigator.clipboard.writeText(text);
@@ -44,8 +53,8 @@ export function ExportButton({ cards, query, evaluatorResults }: ExportButtonPro
     cards.forEach((c, i) => {
       md += `## Card ${i + 1}`;
       if (c.variant !== 'original') md += ` [${c.variant}]`;
-      md += `\n\n${c.text}\n\n`;
-      if (c.inspect) md += `> **Reasoning:** ${c.inspect}\n\n`;
+      md += `\n\n${escapeMarkdown(c.text)}\n\n`;
+      if (c.inspect) md += `> **Reasoning:** ${escapeMarkdown(c.inspect)}\n\n`;
       md += `---\n\n`;
     });
 

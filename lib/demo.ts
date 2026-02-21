@@ -77,7 +77,7 @@ export const DEMO_EVALUATOR: EvaluatorResults = {
       id: 'demo-5',
       strength: 'moderate',
       suggestion: 'The spatial metaphor overlaps with the blank box argument in card 1 — consider dismissing one.',
-      overlaps_with: 1,
+      overlaps_with: 'demo-1',
     },
   ],
   overall: '3 strong points, 1 moderate, 1 weak. Cards 1 and 5 have thematic overlap — consider dismissing one. Card 3 needs expansion.',

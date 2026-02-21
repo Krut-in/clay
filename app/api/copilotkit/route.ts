@@ -36,8 +36,8 @@ async function handleCardAction(
 
   const modelMap: Record<string, string> = {
     compress: 'claude-haiku-4-5-20251001',
-    expand: 'claude-sonnet-4-5-20250514',
-    rephrase: 'claude-sonnet-4-5-20250514',
+    expand: 'claude-sonnet-4-6',
+    rephrase: 'claude-sonnet-4-6',
     inspect: 'claude-haiku-4-5-20251001',
   };
 

@@ -28,7 +28,7 @@ export interface CardEvaluation {
   id: string;
   strength: EvalStrength;
   suggestion: string;
-  overlaps_with: number | null;
+  overlaps_with: string | null;  // card ID of the overlapping card, or null
 }
 
 export interface EvaluatorResults {

@@ -63,7 +63,7 @@ For each card, assess:
   - "moderate" = valid but could be sharper or more specific
   - "weak" = vague, redundant, or adds little value
 - suggestion: 1 actionable sentence (what the user should do — compress, expand, rephrase, dismiss, or keep as-is)
-- overlaps_with: card number (1-indexed) if this card is redundant with another, null otherwise
+- overlaps_with: the id of the card this overlaps with (use the id shown in parentheses in the Cards list above), or null if no overlap
 
 Also provide:
 - overall: 1–2 sentence summary of the card set quality and balance
@@ -72,7 +72,7 @@ Also provide:
 Return ONLY valid JSON, no markdown fences, no preamble:
 {
   "cards": [
-    { "id": "...", "strength": "...", "suggestion": "...", "overlaps_with": null },
+    { "id": "card-id-here", "strength": "...", "suggestion": "...", "overlaps_with": "other-card-id-or-null" },
     ...
   ],
   "overall": "...",

@@ -11,6 +11,7 @@ const GAP = 16;
 interface CanvasProps {
   cards: CardType[];
   evaluatorResults: EvaluatorResults | null;
+  overlapHighlighted?: boolean;
   onCompress: (id: string) => void;
   onExpand: (id: string) => void;
   onRephrase: (id: string) => void;
@@ -18,7 +19,7 @@ interface CanvasProps {
   onDismiss: (id: string) => void;
 }
 
-export function Canvas({ cards, evaluatorResults, onCompress, onExpand, onRephrase, onInspect, onDismiss }: CanvasProps) {
+export function Canvas({ cards, evaluatorResults, overlapHighlighted = false, onCompress, onExpand, onRephrase, onInspect, onDismiss }: CanvasProps) {
   if (cards.length === 0) return null;
 
   return (
@@ -66,7 +67,8 @@ export function Canvas({ cards, evaluatorResults, onCompress, onExpand, onRephra
             .filter((e) => e.overlaps_with !== null)
             .map((e) => {
               const fromIdx = cards.findIndex((c) => c.id === e.id);
-              const toIdx = (e.overlaps_with || 1) - 1;
+              // Use card ID lookup — safe even after card dismissal
+              const toIdx = cards.findIndex((c) => c.id === e.overlaps_with);
               if (fromIdx < 0 || toIdx < 0 || fromIdx === toIdx) return null;
 
               const fromY = fromIdx * (CARD_HEIGHT + GAP) + CARD_HEIGHT / 2;
@@ -79,10 +81,11 @@ export function Canvas({ cards, evaluatorResults, onCompress, onExpand, onRephra
                   y1={fromY}
                   x2="98%"
                   y2={toY}
-                  stroke="var(--eval-overlap)"
-                  strokeWidth={1}
+                  stroke={overlapHighlighted ? 'var(--action-inspect)' : 'var(--eval-overlap)'}
+                  strokeWidth={overlapHighlighted ? 2 : 1}
                   strokeDasharray="4 4"
-                  opacity={0.6}
+                  opacity={overlapHighlighted ? 1 : 0.6}
+                  style={{ transition: 'stroke 0.3s, stroke-width 0.3s, opacity 0.3s' }}
                 />
               );
             })}

@@ -9,6 +9,7 @@ interface ClayStore {
   evaluatorResults: EvaluatorResults | null;
   status: AppStatus;
   isDemo: boolean;
+  overlapHighlighted: boolean;
 
   // Card mutations
   addCard: (card: Card) => void;
@@ -26,6 +27,7 @@ interface ClayStore {
   setStatus: (status: AppStatus) => void;
   setQuery: (query: string) => void;
   setIsDemo: (isDemo: boolean) => void;
+  setOverlapHighlighted: (v: boolean) => void;
 }
 
 export const useClayStore = create<ClayStore>((set) => ({
@@ -35,6 +37,7 @@ export const useClayStore = create<ClayStore>((set) => ({
   evaluatorResults: null,
   status: { type: 'idle' },
   isDemo: false,
+  overlapHighlighted: false,
 
   addCard: (card) => set((state) => ({ cards: [...state.cards, card] })),
   clearCards: () => set({ cards: [], evaluatorResults: null }),
@@ -52,4 +55,5 @@ export const useClayStore = create<ClayStore>((set) => ({
   setStatus: (status) => set({ status }),
   setQuery: (query) => set({ query }),
   setIsDemo: (isDemo) => set({ isDemo }),
+  setOverlapHighlighted: (v) => set({ overlapHighlighted: v }),
 }));

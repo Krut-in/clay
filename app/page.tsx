@@ -23,7 +23,7 @@ function HomeContent() {
   const isDemoParam = searchParams.get('demo') === '1';
 
   const {
-    cards, status, query, evaluatorResults,
+    cards, status, query, evaluatorResults, overlapHighlighted,
     addCard, clearCards, setQuery, setStatus,
     setBlueprintData, updateCard, removeCard,
     setEvaluatorResults, setIsDemo, isDemo,
@@ -349,6 +349,7 @@ function HomeContent() {
       <Canvas
         cards={cards}
         evaluatorResults={evaluatorResults}
+        overlapHighlighted={overlapHighlighted}
         onCompress={handleCompress}
         onExpand={handleExpand}
         onRephrase={handleRephrase}
