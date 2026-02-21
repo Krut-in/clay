@@ -65,18 +65,12 @@ export function useEvaluator() {
           recommended_action: data.recommended_action || '',
         });
 
-        setStatus({
-          type: 'ready',
-          message: `${cards.length} cards ready — hover to sculpt · double-click to rephrase`,
-        });
+        setStatus({ type: 'ready' });
       }
     } catch (err) {
       // Evaluator failure is non-fatal — silently skip indicators
       console.warn('Evaluator failed:', err);
-      setStatus({
-        type: 'ready',
-        message: `${cards.length} cards ready — hover to sculpt · double-click to rephrase`,
-      });
+      setStatus({ type: 'ready' });
     } finally {
       isRunningRef.current = false;
     }

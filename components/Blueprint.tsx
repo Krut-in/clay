@@ -99,31 +99,45 @@ export function Blueprint({
               }}>
                 Claude&apos;s interpretation
               </label>
-              <div
-                contentEditable
-                suppressContentEditableWarning
-                onFocus={() => {
-                  setIsEditing(true);
-                  handleInteraction();
-                }}
-                onBlur={(e) => {
-                  setIsEditing(false);
-                  onUpdateInterpretation(e.currentTarget.textContent || interpretation);
-                }}
-                onInput={handleInteraction}
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: 14.5,
-                  fontStyle: 'italic',
-                  color: 'var(--text-body)',
-                  lineHeight: 1.6,
-                  outline: 'none',
-                  padding: '8px 0',
-                  borderBottom: isEditing ? '1px solid var(--text-muted)' : '1px solid transparent',
-                  transition: 'border-color 0.2s',
-                }}
-              >
-                {interpretation}
+              <div style={{ position: 'relative' }}>
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  onFocus={() => {
+                    setIsEditing(true);
+                    handleInteraction();
+                  }}
+                  onBlur={(e) => {
+                    setIsEditing(false);
+                    onUpdateInterpretation(e.currentTarget.textContent || interpretation);
+                  }}
+                  onInput={handleInteraction}
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: 14.5,
+                    fontStyle: 'italic',
+                    color: 'var(--text-body)',
+                    lineHeight: 1.6,
+                    outline: 'none',
+                    padding: '8px 24px 8px 0',
+                    borderBottom: isEditing ? '1px solid var(--text-muted)' : '1px solid transparent',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  {interpretation}
+                </div>
+                <span style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: 8,
+                  fontSize: 13,
+                  color: 'var(--text-meta)',
+                  pointerEvents: 'none',
+                  opacity: isEditing ? 0 : 0.7,
+                  transition: 'opacity 0.15s',
+                }}>
+                  ✏
+                </span>
               </div>
             </div>
 

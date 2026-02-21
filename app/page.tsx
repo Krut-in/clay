@@ -68,14 +68,11 @@ function HomeContent() {
       addCard(card);
     }
     setEvaluatorResults(DEMO_EVALUATOR);
-    setStatus({
-      type: 'ready',
-      message: `${DEMO_CARDS.length} cards ready — hover to sculpt · double-click to rephrase`,
-    });
+    setStatus({ type: 'ready' });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDemoParam]);
 
-  const generateCards = async (q: string, selectedTopics?: string[]) => {
+  const generateCards = async (q: string, selectedTopics?: string[], retryCount = 0) => {
     setStatus({ type: 'streaming', message: 'Sculpting response…' });
     setShowStreaming(true);
 
@@ -90,9 +87,14 @@ function HomeContent() {
       });
 
       if (res.status === 429) {
-        setStatus({ type: 'error', message: 'Rate limit hit — retrying in 5 seconds…' });
+        if (retryCount >= 1) {
+          setStatus({ type: 'error', message: 'Rate limit exceeded — please try again later' });
+          setShowStreaming(false);
+          return;
+        }
+        setStatus({ type: 'error', message: 'Rate limit hit — retrying in 5s…' });
         await new Promise((r) => setTimeout(r, 5000));
-        return generateCards(q, selectedTopics);
+        return generateCards(q, selectedTopics, retryCount + 1);
       }
 
       if (!res.ok) throw new Error(`API error: ${res.status}`);
@@ -121,10 +123,7 @@ function HomeContent() {
         addCard(parsed[i]);
       }
 
-      setStatus({
-        type: 'ready',
-        message: `${parsed.length} cards ready — hover to sculpt · double-click to rephrase`,
-      });
+      setStatus({ type: 'ready' });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Generation failed';
       setStatus({ type: 'error', message });
@@ -183,7 +182,7 @@ function HomeContent() {
     const card = cards.find((c) => c.id === id);
     if (!card) return;
     updateCard(id, { loading: true });
-    setStatus({ type: 'loading', message: 'Compressing…' });
+    setStatus({ type: 'card-loading', message: 'Compressing…' });
     try {
       const res = await fetch('/api/copilotkit', {
         method: 'POST',
@@ -192,7 +191,7 @@ function HomeContent() {
       });
       const data = await res.json();
       updateCard(id, { text: data.result, variant: 'compressed', loading: false });
-      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+      setStatus({ type: 'ready' });
     } catch {
       updateCard(id, { loading: false });
       setStatus({ type: 'error', message: 'Compress failed — try again' });
@@ -203,7 +202,7 @@ function HomeContent() {
     const card = cards.find((c) => c.id === id);
     if (!card) return;
     updateCard(id, { loading: true });
-    setStatus({ type: 'loading', message: 'Expanding…' });
+    setStatus({ type: 'card-loading', message: 'Expanding…' });
     try {
       const res = await fetch('/api/copilotkit', {
         method: 'POST',
@@ -212,7 +211,7 @@ function HomeContent() {
       });
       const data = await res.json();
       updateCard(id, { text: data.result, variant: 'expanded', loading: false });
-      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+      setStatus({ type: 'ready' });
     } catch {
       updateCard(id, { loading: false });
       setStatus({ type: 'error', message: 'Expand failed — try again' });
@@ -223,7 +222,7 @@ function HomeContent() {
     const card = cards.find((c) => c.id === id);
     if (!card) return;
     updateCard(id, { loading: true });
-    setStatus({ type: 'loading', message: 'Rephrasing…' });
+    setStatus({ type: 'card-loading', message: 'Rephrasing…' });
     try {
       const res = await fetch('/api/copilotkit', {
         method: 'POST',
@@ -232,7 +231,7 @@ function HomeContent() {
       });
       const data = await res.json();
       updateCard(id, { text: data.result, variant: 'rephrased', loading: false });
-      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+      setStatus({ type: 'ready' });
     } catch {
       updateCard(id, { loading: false });
       setStatus({ type: 'error', message: 'Rephrase failed — try again' });
@@ -250,7 +249,7 @@ function HomeContent() {
     }
 
     updateCard(id, { loading: true });
-    setStatus({ type: 'loading', message: 'Inspecting…' });
+    setStatus({ type: 'card-loading', message: 'Inspecting…' });
     try {
       const res = await fetch('/api/copilotkit', {
         method: 'POST',
@@ -259,7 +258,7 @@ function HomeContent() {
       });
       const data = await res.json();
       updateCard(id, { inspect: data.result, loading: false });
-      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+      setStatus({ type: 'ready' });
     } catch {
       updateCard(id, { loading: false });
       setStatus({ type: 'error', message: 'Inspect failed — try again' });
