@@ -86,6 +86,7 @@ function HomeContent() {
     queryInputRef.current = q;
     clearCards();
     setStreamingText('');
+    setShowBlueprint(false);
     setShowStreaming(false);
 
     // Phase 1: Blueprint

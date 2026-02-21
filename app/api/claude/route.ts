@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { messages, selectedTopics } = await req.json();
 
     const stream = anthropic.messages.stream({
-      model: 'claude-sonnet-4-5-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 2048,
       system: SYSTEM_PROMPT(selectedTopics),
       messages,
