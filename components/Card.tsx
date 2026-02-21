@@ -96,10 +96,10 @@ export function Card({
           <div
             style={{
               position: "absolute",
-              top: 7,
-              right: 7,
-              width: 11,
-              height: 11,
+              top: 8,
+              right: 8,
+              width: 7,
+              height: 7,
               zIndex: 5,
             }}
           >
@@ -136,10 +136,10 @@ export function Card({
                       : "var(--eval-weak)",
                 boxShadow:
                   evaluation.strength === "strong"
-                    ? "0 0 7px 2px var(--eval-strong)"
+                    ? "0 0 4px 1px var(--eval-strong)"
                     : evaluation.strength === "moderate"
-                      ? "0 0 7px 2px var(--eval-moderate)"
-                      : "0 0 7px 2px var(--eval-weak)",
+                      ? "0 0 4px 1px var(--eval-moderate)"
+                      : "0 0 4px 1px var(--eval-weak)",
                 animation: "eval-pulse 2s ease-in-out infinite",
                 cursor: "help",
               }}

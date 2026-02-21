@@ -78,21 +78,21 @@
   0%,
   100% {
     transform: scale(1);
-    opacity: 1;
+    opacity: 0.85;
   }
   50% {
-    transform: scale(1.25);
-    opacity: 0.85;
+    transform: scale(1.1);
+    opacity: 0.7;
   }
 }
 
 @keyframes eval-ping {
   0% {
     transform: scale(1);
-    opacity: 0.55;
+    opacity: 0.35;
   }
   100% {
-    transform: scale(2.8);
+    transform: scale(2);
     opacity: 0;
   }
 }
@@ -137,4 +137,28 @@ body {
 .clay-copilot-popup [class*="copilotKitMessage"] {
   font-family: var(--font-mono) !important;
   font-size: 12px !important;
+  color: var(--palette-text) !important;
+}
+
+/* Ensure all text inside the popup is readable on dark bg */
+.clay-copilot-popup [class*="copilotKitResponse"],
+.clay-copilot-popup [class*="copilotKitAssistant"],
+.clay-copilot-popup [class*="response"],
+.clay-copilot-popup [class*="assistant"] {
+  color: var(--palette-text) !important;
+  background: rgba(245, 240, 232, 0.08) !important;
+  border-radius: 6px !important;
+}
+
+.clay-copilot-popup p,
+.clay-copilot-popup span,
+.clay-copilot-popup li,
+.clay-copilot-popup code {
+  color: var(--palette-text) !important;
+}
+
+.clay-copilot-popup code {
+  background: rgba(245, 240, 232, 0.12) !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
 }

@@ -29,7 +29,7 @@ export function Canvas({ cards, evaluatorResults, overlapHighlighted = false, on
       flexDirection: 'column',
       gap: GAP,
       paddingBottom: 80,
-      paddingRight: 56,
+      paddingRight: 52,
     }}>
       <AnimatePresence mode="popLayout">
         {cards.map((card, i) => {
