@@ -40,6 +40,12 @@ export async function POST(req: Request) {
       },
     });
   } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes('rate_limit')) {
+      return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+        status: 429,
+        headers: { 'Content-Type': 'application/json', 'Retry-After': '5' },
+      });
+    }
     const message = error instanceof Error ? error.message : 'Claude streaming failed';
     return new Response(JSON.stringify({ error: message }), {
       status: 500,

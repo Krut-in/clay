@@ -7,7 +7,7 @@ You are completing CLAY. Prompts 1–4 are complete:
 - Evaluator analyses cards and renders strength dots, overlap lines, summary bar
 - Demo mode loads pre-built cards with zero API calls
 - Export: Markdown download + copy to clipboard
-- CopilotKit wraps the app, `useCopilotReadable` exposes canvas state, `useCopilotAction` defines all card actions
+- CopilotKit wraps the app, `useCopilotReadable` exposes canvas state, `useCopilotAction` defines all **card** actions
 
 This final prompt adds:
 1. **CopilotKit Command Palette** — Cmd+K opens a natural language command interface to control the canvas

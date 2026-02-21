@@ -43,6 +43,12 @@ export async function POST(req: Request) {
       headers: { 'X-Cache': 'MISS' },
     });
   } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes('rate_limit')) {
+      return NextResponse.json({ error: 'Rate limit exceeded' }, {
+        status: 429,
+        headers: { 'Retry-After': '5' },
+      });
+    }
     const message = error instanceof Error ? error.message : 'Blueprint generation failed';
     return NextResponse.json({ error: message }, { status: 500 });
   }

@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { useClayStore } from '@/hooks/useClayStore';
 import { useCopilotActions } from '@/hooks/useCopilotActions';
 import { useEvaluator } from '@/hooks/useEvaluator';
@@ -16,6 +17,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { GestureLegend } from '@/components/GestureLegend';
 import { EvaluatorBar } from '@/components/EvaluatorBar';
 import { ExportButton } from '@/components/ExportButton';
+import { StatusBar } from '@/components/StatusBar';
+import { CommandPalette } from '@/components/CommandPalette';
 import type { BlueprintTopic } from '@/types';
 
 function HomeContent() {
@@ -34,6 +37,19 @@ function HomeContent() {
 
   // Auto-fire evaluator when cards change
   useEvaluator();
+
+  // Cmd+K keyboard shortcut → open CopilotKit command palette
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const trigger = document.querySelector('[class*="copilotKitButton"]') as HTMLElement;
+        if (trigger) trigger.click();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   const [streamingText, setStreamingText] = useState('');
   const [showBlueprint, setShowBlueprint] = useState(false);
@@ -72,6 +88,12 @@ function HomeContent() {
           selectedTopics,
         }),
       });
+
+      if (res.status === 429) {
+        setStatus({ type: 'error', message: 'Rate limit hit — retrying in 5 seconds…' });
+        await new Promise((r) => setTimeout(r, 5000));
+        return generateCards(q, selectedTopics);
+      }
 
       if (!res.ok) throw new Error(`API error: ${res.status}`);
 
@@ -260,10 +282,13 @@ function HomeContent() {
       {/* Header */}
       <header style={{
         display: 'flex',
-        alignItems: 'baseline',
+        alignItems: 'center',
         justifyContent: 'space-between',
         marginBottom: 32,
+        flexWrap: 'wrap',
+        gap: 12,
       }}>
+        {/* Left: Logo */}
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
           <h1 style={{
             fontFamily: 'var(--font-display)',
@@ -284,49 +309,93 @@ function HomeContent() {
             response sculpting
           </span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          {isDemo && (
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 10,
-              color: 'var(--action-inspect)',
-              border: '1px solid var(--action-inspect)',
-              borderRadius: 10,
-              padding: '2px 8px',
-            }}>
-              demo mode
-            </span>
-          )}
-          {cards.length > 0 && (
-            <span style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: 12,
-              color: 'var(--text-muted)',
-            }}>
+
+        {/* Right: Controls (visible when cards present) */}
+        {cards.length > 0 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {/* Card count */}
+            <motion.span
+              key={cards.length}
+              initial={{ scale: 1.15 }}
+              animate={{ scale: 1 }}
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 12,
+                color: 'var(--text-muted)',
+              }}
+            >
               {cards.length} card{cards.length !== 1 ? 's' : ''}
-            </span>
-          )}
-          <ExportButton cards={cards} query={query} evaluatorResults={evaluatorResults} />
-        </div>
+            </motion.span>
+
+            {/* Evaluator summary badge */}
+            {evaluatorResults && (
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 10,
+                color: 'var(--eval-strong)',
+                border: '1px solid var(--border-card)',
+                borderRadius: 10,
+                padding: '2px 8px',
+              }}>
+                {evaluatorResults.cards.filter((e) => e.strength === 'strong').length} strong
+              </span>
+            )}
+
+            {/* Demo badge */}
+            {isDemo && (
+              <span style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 10,
+                color: 'var(--action-inspect)',
+                border: '1px solid var(--action-inspect)',
+                borderRadius: 10,
+                padding: '2px 8px',
+              }}>
+                demo
+              </span>
+            )}
+
+            {/* Export */}
+            <ExportButton cards={cards} query={query} evaluatorResults={evaluatorResults} />
+
+            {/* Command palette trigger */}
+            <button
+              onClick={() => {
+                const trigger = document.querySelector('[class*="copilotKitButton"]') as HTMLElement;
+                if (trigger) trigger.click();
+              }}
+              title="Command palette (⌘K)"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: 11,
+                color: 'var(--text-muted)',
+                background: 'transparent',
+                border: '1px solid var(--border-card)',
+                borderRadius: 6,
+                padding: '6px 10px',
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = 'var(--text-muted)';
+                e.currentTarget.style.color = 'var(--text-body)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = 'var(--border-card)';
+                e.currentTarget.style.color = 'var(--text-muted)';
+              }}
+            >
+              ⌘K
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Query Input */}
       <QueryInput onSubmit={handleSubmit} disabled={isDisabled} />
 
       {/* Status */}
-      {status.type !== 'idle' && status.message && (
-        <p style={{
-          fontFamily: 'var(--font-mono)',
-          fontSize: 11.5,
-          color: status.type === 'error' ? 'var(--action-dismiss)' : 'var(--text-muted)',
-          marginBottom: 16,
-        }}>
-          {(status.type === 'blueprinting' || status.type === 'streaming' || status.type === 'evaluating') && (
-            <span style={{ animation: 'blink 1s infinite' }}>● </span>
-          )}
-          {status.message}
-        </p>
-      )}
+      <StatusBar status={status} cardCount={cards.length} />
 
       {/* Blueprint Panel */}
       <Blueprint
@@ -364,6 +433,9 @@ function HomeContent() {
 
       {/* Gesture Legend */}
       {cards.length > 0 && <GestureLegend />}
+
+      {/* Command Palette */}
+      <CommandPalette />
     </main>
   );
 }

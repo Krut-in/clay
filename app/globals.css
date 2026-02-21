@@ -80,3 +80,20 @@ html, body {
 .hide-overlap-lines svg {
   display: none !important;
 }
+
+/* CopilotKit Command Palette Overrides */
+.clay-copilot-popup {
+  --copilot-kit-primary-color: var(--text-body) !important;
+  --copilot-kit-background-color: var(--palette-bg) !important;
+  --copilot-kit-response-button-background-color: var(--text-body) !important;
+}
+
+.clay-copilot-popup [class*="copilotKitInput"] {
+  font-family: var(--font-body) !important;
+  font-size: 15px !important;
+}
+
+.clay-copilot-popup [class*="copilotKitMessage"] {
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+}
