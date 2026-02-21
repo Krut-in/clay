@@ -3,6 +3,7 @@
 import { useCallback, useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useClayStore } from '@/hooks/useClayStore';
+import { useCopilotActions } from '@/hooks/useCopilotActions';
 import { fetchBlueprint } from '@/lib/claude';
 import { parseIntoCards } from '@/lib/parser';
 import { QueryInput } from '@/components/QueryInput';
@@ -20,8 +21,11 @@ function HomeContent() {
   const {
     cards, status,
     addCard, clearCards, setQuery, setStatus,
-    setBlueprintData,
+    setBlueprintData, updateCard, removeCard,
   } = useClayStore();
+
+  // Register CopilotKit actions and readable state
+  useCopilotActions();
 
   const [streamingText, setStreamingText] = useState('');
   const [showBlueprint, setShowBlueprint] = useState(false);
@@ -127,6 +131,98 @@ function HomeContent() {
     handleSubmit(q);
   };
 
+  // Card action handlers
+  const handleCompress = async (id: string) => {
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+    updateCard(id, { loading: true });
+    setStatus({ type: 'loading', message: 'Compressing…' });
+    try {
+      const res = await fetch('/api/copilotkit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'compress', content: card.text }),
+      });
+      const data = await res.json();
+      updateCard(id, { text: data.result, variant: 'compressed', loading: false });
+      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+    } catch {
+      updateCard(id, { loading: false });
+      setStatus({ type: 'error', message: 'Compress failed — try again' });
+    }
+  };
+
+  const handleExpand = async (id: string) => {
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+    updateCard(id, { loading: true });
+    setStatus({ type: 'loading', message: 'Expanding…' });
+    try {
+      const res = await fetch('/api/copilotkit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'expand', content: card.text }),
+      });
+      const data = await res.json();
+      updateCard(id, { text: data.result, variant: 'expanded', loading: false });
+      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+    } catch {
+      updateCard(id, { loading: false });
+      setStatus({ type: 'error', message: 'Expand failed — try again' });
+    }
+  };
+
+  const handleRephrase = async (id: string) => {
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+    updateCard(id, { loading: true });
+    setStatus({ type: 'loading', message: 'Rephrasing…' });
+    try {
+      const res = await fetch('/api/copilotkit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'rephrase', content: card.text }),
+      });
+      const data = await res.json();
+      updateCard(id, { text: data.result, variant: 'rephrased', loading: false });
+      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+    } catch {
+      updateCard(id, { loading: false });
+      setStatus({ type: 'error', message: 'Rephrase failed — try again' });
+    }
+  };
+
+  const handleInspect = async (id: string) => {
+    const card = cards.find((c) => c.id === id);
+    if (!card) return;
+
+    // Toggle inspect off if already open
+    if (card.inspect) {
+      updateCard(id, { inspect: null });
+      return;
+    }
+
+    updateCard(id, { loading: true });
+    setStatus({ type: 'loading', message: 'Inspecting…' });
+    try {
+      const res = await fetch('/api/copilotkit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'inspect', content: card.text }),
+      });
+      const data = await res.json();
+      updateCard(id, { inspect: data.result, loading: false });
+      setStatus({ type: 'ready', message: `${cards.length} cards ready — hover to sculpt` });
+    } catch {
+      updateCard(id, { loading: false });
+      setStatus({ type: 'error', message: 'Inspect failed — try again' });
+    }
+  };
+
+  const handleDismiss = (id: string) => {
+    removeCard(id);
+  };
+
   const isDisabled = status.type === 'blueprinting' || status.type === 'streaming' || status.type === 'loading';
 
   return (
@@ -207,7 +303,14 @@ function HomeContent() {
       {showStreaming && <StreamingPreview text={streamingText} />}
 
       {/* Card Canvas */}
-      <Canvas cards={cards} />
+      <Canvas
+        cards={cards}
+        onCompress={handleCompress}
+        onExpand={handleExpand}
+        onRephrase={handleRephrase}
+        onInspect={handleInspect}
+        onDismiss={handleDismiss}
+      />
 
       {/* Empty State */}
       {cards.length === 0 && !showBlueprint && !showStreaming && status.type === 'idle' && (

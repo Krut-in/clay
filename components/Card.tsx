@@ -1,11 +1,18 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ActionSidebar } from './ActionSidebar';
 import type { Card as CardType } from '@/types';
 
 interface CardProps {
   card: CardType;
   index: number;
+  onCompress: (id: string) => void;
+  onExpand: (id: string) => void;
+  onRephrase: (id: string) => void;
+  onInspect: (id: string) => void;
+  onDismiss: (id: string) => void;
 }
 
 const VARIANT_COLORS: Record<string, string> = {
@@ -20,7 +27,9 @@ const VARIANT_LABELS: Record<string, string> = {
   rephrased: '↺ rephrased',
 };
 
-export function Card({ card, index }: CardProps) {
+export function Card({ card, index, onCompress, onExpand, onRephrase, onInspect, onDismiss }: CardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
     <motion.div
       layout
@@ -35,22 +44,18 @@ export function Card({ card, index }: CardProps) {
       }}
       style={{
         position: 'relative',
-        background: 'var(--bg-card)',
+        overflow: 'visible',
+        background: isHovered ? 'var(--bg-card-hover)' : 'var(--bg-card)',
         border: '1px solid var(--border-card)',
         borderRadius: 10,
         padding: '20px 24px',
-        boxShadow: 'var(--shadow-idle)',
+        boxShadow: isHovered ? 'var(--shadow-hover)' : 'var(--shadow-idle)',
         transition: 'box-shadow 0.2s, background 0.2s',
         cursor: 'default',
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = 'var(--shadow-hover)';
-        e.currentTarget.style.background = 'var(--bg-card-hover)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = 'var(--shadow-idle)';
-        e.currentTarget.style.background = 'var(--bg-card)';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onDoubleClick={() => !card.loading && onRephrase(card.id)}
     >
       {/* Variant badge */}
       {card.variant !== 'original' && VARIANT_LABELS[card.variant] && (
@@ -138,6 +143,20 @@ export function Card({ card, index }: CardProps) {
           {card.topic}
         </span>
       )}
+
+      {/* Action sidebar — shown on hover when not loading */}
+      <AnimatePresence>
+        {isHovered && !card.loading && (
+          <ActionSidebar
+            disabled={card.loading}
+            onCompress={() => onCompress(card.id)}
+            onExpand={() => onExpand(card.id)}
+            onRephrase={() => onRephrase(card.id)}
+            onInspect={() => onInspect(card.id)}
+            onDismiss={() => onDismiss(card.id)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
