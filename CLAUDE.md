@@ -13,14 +13,14 @@ Clay is a "Response-Sculpting Interface Powered by Claude" — a hackathon proje
 ## Project Reference
 - Full requirements: CLAY_PRD_v3.md
 - Build sequence: prompts/prompt-1 through prompt-5
-- Current milestone: **Prompt 2 — Blueprint, Canvas & Streaming**
+- Current milestone: **Prompt 3 — Card Actions & CopilotKit**
 
 ## Build Progress
 
 | Prompt | File | Status | What Was Built |
 |--------|------|--------|----------------|
 | 1 | `prompts/prompt-1-foundation.md` | ✅ COMPLETE | Project skeleton: Next.js 15 + TypeScript scaffolded manually (capital-letter directory name blocked `create-next-app`). All TypeScript types (`Card`, `BlueprintData`, `EvaluatorResults`, `AppStatus`), Zustand store with full mutations, 7 system prompts in `lib/prompts.ts`, `parser.ts` with 3-level fallback + topic reconciliation, `claude.ts` streaming client, `redis.ts` graceful stub (no-ops without env vars), full CSS design system with all tokens + keyframes + Google Fonts, root layout, placeholder page, and both API route stubs (`/api/blueprint` + `/api/claude`). Added markdown-fence stripping to blueprint route — Haiku returns fences despite the prompt saying not to. Blueprint endpoint verified live: returns `{interpretation, topics[]}` in ~1s. TypeScript compiles with zero errors. |
-| 2 | `prompts/prompt-2-blueprint-canvas-streaming.md` | ⬜ NOT STARTED | — |
+| 2 | `prompts/prompt-2-blueprint-canvas-streaming.md` | ✅ COMPLETE | 7 components: QueryInput, EmptyState, Blueprint (auto-proceed countdown + spring animation), Card (variant badges + shimmer), Canvas, StreamingPreview, GestureLegend. Full page.tsx orchestration: query → blueprint → streaming → staggered cards. Suspense wrapper for useSearchParams (Next.js 15). Zero TS errors. |
 | 3 | `prompts/prompt-3-card-actions-copilotkit.md` | ⬜ NOT STARTED | — |
 | 4 | `prompts/prompt-4-evaluator-demo-export.md` | ⬜ NOT STARTED | — |
 | 5 | `prompts/prompt-5-palette-polish-qa.md` | ⬜ NOT STARTED | — |
