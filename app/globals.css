@@ -1,0 +1,82 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Canvas & Cards */
+  --bg-canvas: #F5F0E8;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #FAFAF8;
+  --border-card: #E8E4DE;
+
+  /* Blueprint Panel */
+  --bg-blueprint: #FDFCF9;
+  --border-blueprint: #D8D2C8;
+
+  /* Typography */
+  --text-body: #2A2520;
+  --text-muted: #A09280;
+  --text-meta: #C0B8AA;
+
+  /* Action Colors */
+  --action-compress: #2D2D2D;
+  --action-expand: #1A4A8A;
+  --action-rephrase: #2D6A2D;
+  --action-inspect: #8A6A00;
+  --action-dismiss: #C0392B;
+
+  /* Evaluator Colors */
+  --eval-strong: #2D6A2D;
+  --eval-moderate: #8A6A00;
+  --eval-weak: #C0392B;
+  --eval-overlap: #A09280;
+
+  /* Command Palette */
+  --palette-bg: #2A2520;
+  --palette-text: #F5F0E8;
+
+  /* Shadows */
+  --shadow-idle: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.10);
+
+  /* Font Families */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Lora', Georgia, serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+}
+
+/* Keyframes */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Reset & Base */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  font-size: 15.5px;
+  color: var(--text-body);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Utility: kill overlap lines if they misposition */
+.hide-overlap-lines svg {
+  display: none !important;
+}
